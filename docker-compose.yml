@@ -1,0 +1,21 @@
+# docker compose up --build      -> gateway + dashboard on http://localhost:8000
+# docker compose run --rm test   -> tests, then the solver profile (no network needed)
+services:
+  api:
+    build: .
+    environment:
+      ROUTES_API_TOKEN: ${ROUTES_API_TOKEN:?put ROUTES_API_TOKEN in .env - see README}
+      ROUTES_DB: /data/routes.sqlite
+      OSRM_URL: ${OSRM_URL:-https://router.project-osrm.org}     # the public demo server: fine for trying out, not for production
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}                 # leave empty and texts are recorded, not sent
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+      TWILIO_FROM: ${TWILIO_FROM:-}
+    volumes: [routes:/data]
+    ports: ["8000:8000"]
+
+  test:
+    build: {context: ., target: test}
+    profiles: [test]
+
+volumes:
+  routes:
